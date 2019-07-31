@@ -5,7 +5,46 @@
   "main": "main.js",
   "scripts": {
     "start": "nodemon --watch main.js --exec \"npm run dev\"",
-    "dev": "electron ."
+    "dev": "electron .",
+    "dist": "build"
+  },
+  "build": {
+    "appId": "FrankSimpleMusicPlayer",
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "dmg": {
+      "bgckground": "build/appbg.png",
+      "icon": "build/icon.icns",
+      "iconSize": 128,
+      "contents": [
+        {
+          "x": 380,
+          "y": 280,
+          "type": "link",
+          "path": "/applications"
+        },
+        {
+          "x": 110,
+          "y": 280,
+          "type": "flie"
+        }
+      ],
+      "window": {
+        "width": 500,
+        "height": 500
+      }
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": "squirrel",
+      "icon": "build/icon.ico"
+    }
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
@@ -19,6 +58,7 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^5.0.8",
+    "electron-builder": "^21.1.5",
     "nodemon": "^1.19.1"
   },
   "dependencies": {

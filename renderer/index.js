@@ -1,5 +1,6 @@
 const { ipcRenderer } = require('electron')
-// const { $ } = require{'./helper'}
+// const { convertDuration } = require{'./helper'}
+
 let musicAudio = new Audio()
 let allTracks
 let currentTrack
@@ -26,10 +27,39 @@ const renderListHTML = (tracks) => {
 	const emptyTrackHTML = '<div class="alert alert-primary">还没有添加任何音乐</div>'
 	tracksList.innerHTML = tracks.length ? `<ul class="list-group">${tracksListHTML}</ul>` : emptyTrackHTML
 }
+
+const renderPlayerHTML = (name ,duration) => {
+	const player = document.getElementById('player-status')
+	const html = `<div class="col font-weight-bold">
+					正在播放： ${name}
+				  </div>
+				  <div class="col">
+				    <span id="current-seeker">00:00</span> / ${convertDuration(duration)}
+				  </div>`
+	player.innerHTML = html
+}
+const updateProgressHTML = (currentTime, duration) => {
+	// 计算progress
+	const progress = Math.floor(currentTime / duration * 100)
+	const bar = document.getElementById('player-progress')
+	bar.innerHTML = progress + '%'
+	bar.style.width = progress + '%'
+	const seeker = document.getElementById('current-seeker')
+	seeker.innerHTML = convertDuration(currentTime)
+}
 ipcRenderer.on('getTracks', (event, tracks) => {
 	// console.log('receive tracks', tracks)
 	allTracks = tracks
 	renderListHTML(tracks)
+})
+
+musicAudio.addEventListener('loadedmetadata', () => {
+	// 渲染播放器状态
+	renderPlayerHTML(currentTrack.fileName, musicAudio.duration)
+})
+musicAudio.addEventListener('timeupdate', () => {
+	// 更新播放器状态
+	updateProgressHTML(musicAudio.currentTime, musicAudio.duration)
 })
 
 document.getElementById('tracksList').addEventListener('click', (event) => {
@@ -61,3 +91,12 @@ document.getElementById('tracksList').addEventListener('click', (event) => {
 		ipcRenderer.send('delete-track', id)
 	}
 })
+
+
+convertDuration = (time) => {
+	// 计算分钟 单位返回01，多位返回001
+	const minutes = "0" + Math.floor(time / 60)
+	// 计算秒数
+	const seconds = "0" + Math.floor(time - minutes * 60)
+	return minutes.substr(-2) + ":" + seconds.substr(-2)
+}
